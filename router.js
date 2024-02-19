@@ -5,6 +5,11 @@ const routes = [
         path: '/',
         component: path.join('public', 'index.html')
     },
+    {
+        path: '/about',
+        component: path.join('public', 'pages', 'about.html')
+    },
+
 ]
 
 module.exports = (url) => {
