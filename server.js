@@ -4,7 +4,6 @@ const path = require('path')
 const router = require('./router')
 
 const port = 3000
-const host = '127.0.0.1'
 
 const serveFile = (response, filePath, contentType) => {
     fs.readFile(filePath, (error, data) => {
@@ -18,14 +17,12 @@ const serveFile = (response, filePath, contentType) => {
     })
 }
 
-const server = http.createServer((request, response) => {
-    const requestUrl = request.url
-
+const processResource = (url) => {
     let responsePath = '';
     let contentType = '';
 
-    if (['css', 'js', 'png', 'jpg', 'jpeg'].includes(path.extname(requestUrl).replace(/\./, ''))) {
-        const basename = path.basename(requestUrl)
+    if (['css', 'js', 'png', 'jpg', 'jpeg'].includes(path.extname(url).replace(/\./, ''))) {
+        const basename = path.basename(url)
 
         switch (path.extname(basename).replace(/\./, '')) {
             case 'css':
@@ -47,10 +44,18 @@ const server = http.createServer((request, response) => {
         contentType = jsonData[path.extname(basename).replace(/\./, '')];
     } else {
         contentType = 'text/html';
-        responsePath = router(requestUrl)
+        responsePath = router(url)
     }
 
+    return {
+        contentType,
+        responsePath
+    }
+}
+
+const server = http.createServer((request, response) => {
+    const { responsePath, contentType } = processResource(request.url)
     serveFile(response, responsePath, contentType);
 })
 
-server.listen(port, host)
+server.listen(port)
